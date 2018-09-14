@@ -1,0 +1,103 @@
+#include "slice_req.h"
+
+//产生切片请求
+vector<vector<vector<int>>> SliceReq::CreateSF(int slicenum) {
+	for (int i = 0; i < slicenum; ++i) {
+		int serial_number = 0; //VNF编号
+		Two_D slice; //保存VNF拓扑
+		Three_D capacity;
+		int linknum = 2 + rand() % 3; //链总数
+		int mc_size = 5 + rand() % 4; //主链长度
+		vector<int> mc_chain;
+		for (int k = 0; k < mc_size; ++k) {
+			mc_chain.push_back(++serial_number);
+		}
+		slice.push_back(mc_chain);
+		Two_D mc_capacity;
+		//生成主链容量
+		for (int m = 0; m < mc_size; ++m) {
+			int vcpu = rand() % 4 + 1;
+			int mem = (int)pow(2, 1 + rand() % 3);
+			int disk = 5 + rand() % 96;
+			int bandwidth = 10 + rand() % 50;
+			vector<int> temp{ vcpu, mem, disk, bandwidth };
+			mc_capacity.push_back(temp);
+		}
+		capacity.push_back(mc_capacity);
+		//生成副链
+		for (int j = 1; j < linknum; ++j) {
+			vector<int> vc_chain;
+			Two_D vc_capacity;
+			int vc_size = 2 + rand() % (mc_size - 3);
+			int flag = rand() % 4;
+			//与主链只有一个交点
+			if (flag) {
+				int Inter_section = 1 + rand() % (mc_size - 1);
+				vc_chain.push_back(Inter_section);
+				vc_capacity.push_back({ 0 });
+				for (int l = 1; l < vc_size; ++l) {
+					vc_chain.push_back(++serial_number);
+					int vcpu = rand() % 4 + 1;
+					int mem = (int)pow(2, 1 + rand() % 3);
+					int disk = 5 + rand() % 96;
+					int bandwidth = 10 + rand() % 50;
+					vector<int> temp{ vcpu, mem, disk, bandwidth };
+					vc_capacity.push_back(temp);
+				}
+			}
+			//与主链有两个交点
+			else {
+				vc_size++; //避免出现{3,3}这种情况
+				vc_capacity.push_back({ 1 });
+				int inter_section1 = 1 + rand() % (mc_size-1);
+				int inter_section2 = 1 + rand() % mc_size;
+				vc_chain.push_back(inter_section1);
+				for (int l = 2; l < vc_size; ++l) {
+					vc_chain.push_back(++serial_number);
+					int vcpu = rand() % 4 + 1;
+					int mem = (int)pow(2, 1 + rand() % 3);
+					int disk = 5 + rand() % 96;
+					vector<int> temp{ vcpu, mem, disk };
+					vc_capacity.push_back(temp);
+				}
+				vc_chain.push_back(inter_section2);
+			}
+			slice.push_back(vc_chain);
+			capacity.push_back(vc_capacity);
+		}
+		SliceVNF.push_back(slice);
+		VNFCapacity.push_back(capacity);
+	}
+	return SliceVNF;
+}
+
+//获取切片请求
+void SliceReq::GetSliceVNF() {
+	for (auto &a : SliceVNF) {
+		for (auto &b : a) {
+			for (auto c : b) {
+				cout << c << " -> ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
+}
+
+//获取切片请求容量
+void SliceReq::GetSliceCapacity() {
+	for (auto &a : VNFCapacity) {
+		for (auto &b : a) {
+			for (auto &c : b) {
+				for (auto d : c) {
+					cout << d << ",";
+				}
+				cout << "; ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
+}
+
+//输出到文件中
