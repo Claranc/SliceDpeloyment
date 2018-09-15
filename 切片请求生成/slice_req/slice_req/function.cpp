@@ -34,7 +34,7 @@ vector<vector<vector<int>>> SliceReq::CreateSF(int slicenum) {
 			if (flag) {
 				int Inter_section = 1 + rand() % (mc_size - 1);
 				vc_chain.push_back(Inter_section);
-				vc_capacity.push_back({ 0 });
+				vc_capacity.push_back({ 1 });
 				for (int l = 1; l < vc_size; ++l) {
 					vc_chain.push_back(++serial_number);
 					int vcpu = rand() % 4 + 1;
@@ -48,7 +48,7 @@ vector<vector<vector<int>>> SliceReq::CreateSF(int slicenum) {
 			//与主链有两个交点
 			else {
 				vc_size++; //避免出现{3,3}这种情况
-				vc_capacity.push_back({ 1 });
+				vc_capacity.push_back({ 2 });
 				int inter_section1 = 1 + rand() % (mc_size-1);
 				int inter_section2 = 1 + rand() % mc_size;
 				vc_chain.push_back(inter_section1);
@@ -101,3 +101,32 @@ void SliceReq::GetSliceCapacity() {
 }
 
 //输出到文件中
+void SliceReq::WriteToFile(const char *filename_vnf, const char *filename_capacity) {
+	//保存切片拓扑到文件中
+	ofstream fout_vnf(filename_vnf, ios::out);
+	for (auto &a : SliceVNF) {
+		fout_vnf << "new" << endl;
+		for (auto &b : a) {
+			for (auto c : b) {
+				fout_vnf << c << " ";
+			}
+			fout_vnf << endl;
+		}
+	}
+	fout_vnf.close();
+	//保存切片请求容量到文件中
+	ofstream fout_ca(filename_capacity, ios::out);
+	for (auto &a : VNFCapacity) {
+		fout_ca << "new" << endl;
+		for (auto &b : a) {
+			for (auto &c : b) {
+				for (auto d : c) {
+					fout_ca << d << " ";
+				}
+				fout_ca << ";";
+			}
+			fout_ca << endl;
+		}
+	}
+	fout_ca.close();
+}

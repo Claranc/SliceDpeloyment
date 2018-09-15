@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <ctime>
 #include <memory>
+#include <fstream>
 using namespace std;
 
 #define Two_D vector<vector<int>>
