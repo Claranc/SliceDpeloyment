@@ -15,7 +15,7 @@ void SplitString(const string& s, vector<string>& v, const string& c) {
 }
 
 void VTB::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file, const char *linkbandwidth_file, \
-    const char *slicevnf_file, const char*slicereqcapacity_file) {
+    const char *slicevnf_file, const char *slicereqcapacity_file) {
     //∂¡»Î¡⁄Ω”æÿ’Û
     ifstream fin_AdjacencyMatrix(adjacency_file, ios::in);
     if (!fin_AdjacencyMatrix.is_open()) {
@@ -74,7 +74,7 @@ void VTB::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file
         LineStr.clear();
     }
     fin_LineWidth.close();
-    //∂¡»Î«–∆¨«Î«Û
+    //∂¡»Î«–∆¨Õÿ∆À
     ifstream fin_slicevnf(slicevnf_file, ios::in);
     if (!fin_slicevnf) {
         cerr << "The slice vnf file cannot open !!!" << endl;
@@ -88,7 +88,7 @@ void VTB::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file
         if ("new" == LineStr.substr(0, 3)) {
             Two_D slice_temp;
             int linknum = stoi(LineStr.substr(4));
-            for (int i = 1; i < linknum; ++i) {
+            for (int i = 1; i <= linknum; ++i) {
                 getline(fin_slicevnf, LineStr);
                 vector<int> li;
                 stringstream ss(LineStr);
@@ -99,6 +99,34 @@ void VTB::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file
                 slice_temp.push_back(li);
                 LineStr.clear();
             }
+            SliceReq.push_back(slice_temp);
         }
     }
+    fin_slicevnf.close();
+    //test
+    /*for (auto &a : SliceReq) {
+        for (auto &b : a) {
+            for (auto c : b) {
+                cout << c << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }*/
+    //∂¡»Î«–∆¨»›¡ø«Î«Û
+    ifstream fin_slicereq(slicereqcapacity_file, ios::in);
+    if (!fin_slicereq) {
+        cerr << "The slice vnf file cannot open !!!" << endl;
+        exit(-1);
+    }
+    while (1) {
+        getline(fin_slicereq, LineStr);
+        if (0 == LineStr.size()) {
+            break;
+        }
+        if ("new" == LineStr.substr(0, 3)) {
+
+        }
+    }
+    fin_slicereq.close();
 }
