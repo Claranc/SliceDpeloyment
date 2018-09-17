@@ -1,7 +1,7 @@
 #include "slice_req.h"
 
 //产生切片请求
-vector<vector<vector<int>>> SliceReq::CreateSF(int slicenum) {
+Three_D SliceReq::CreateSF(int slicenum) {
 	for (int i = 0; i < slicenum; ++i) {
 		int serial_number = 0; //VNF编号
 		Two_D slice; //保存VNF拓扑
@@ -12,17 +12,19 @@ vector<vector<vector<int>>> SliceReq::CreateSF(int slicenum) {
 		for (int k = 0; k < mc_size; ++k) {
 			mc_chain.push_back(++serial_number);
 		}
+        slice.push_back({ linknum });
 		slice.push_back(mc_chain);
 		Two_D mc_capacity;
 		//生成主链容量
 		for (int m = 0; m < mc_size; ++m) {
 			int vcpu = rand() % 4 + 1;
-			int mem = (int)pow(2, 1 + rand() % 3);
+			int mem = (int)pow(2, 1 + rand() % 3); 
 			int disk = 5 + rand() % 96;
 			int bandwidth = 10 + rand() % 50;
 			vector<int> temp{ vcpu, mem, disk, bandwidth };
 			mc_capacity.push_back(temp);
 		}
+        capacity.push_back({ {{linknum}} });
 		capacity.push_back(mc_capacity);
 		//生成副链
 		for (int j = 1; j < linknum; ++j) {
@@ -104,9 +106,14 @@ void SliceReq::GetSliceCapacity() {
 void SliceReq::WriteToFile(const char *filename_vnf, const char *filename_capacity) {
 	//保存切片拓扑到文件中
 	ofstream fout_vnf(filename_vnf, ios::out);
+    int id = 1;
 	for (auto &a : SliceVNF) {
-		fout_vnf << "new" << endl;
+        fout_vnf << "new ";
 		for (auto &b : a) {
+            if (1 == b.size()) {
+                fout_vnf << b[0] << endl;
+                continue;
+            }
 			for (auto c : b) {
 				fout_vnf << c << " ";
 			}
@@ -116,9 +123,14 @@ void SliceReq::WriteToFile(const char *filename_vnf, const char *filename_capaci
 	fout_vnf.close();
 	//保存切片请求容量到文件中
 	ofstream fout_ca(filename_capacity, ios::out);
+    id = 1;
 	for (auto &a : VNFCapacity) {
-		fout_ca << "new" << endl;
+		fout_ca << "new ";
 		for (auto &b : a) {
+            if (1 == b.size()) {
+                fout_ca << b[0][0] << endl;
+                continue;
+            }
 			for (auto &c : b) {
 				for (auto d : c) {
 					fout_ca << d << " ";
