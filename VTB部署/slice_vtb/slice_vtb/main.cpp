@@ -11,5 +11,6 @@ int main() {
     p->ReadFromFile(ADJACENCYMATRIX_FILE, NODECAPACITY_FILE, LINKBANDWIDTH_FILE, SLICETOPOLOGY_FILE, SLICEREQ_FILE);
     p->SetLinkWeight();
     p->StartDeployment();
+    p->ComputeDelay();
     return 0;
 }

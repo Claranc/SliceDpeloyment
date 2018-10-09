@@ -867,7 +867,8 @@ vector<int> VTB::VTBProcessing(int length, int order, vector<int> &UseCount, vec
 void VTB::StartDeployment() {
     int SIZE = AdjacencyMatrix.size();
     vector<double> U(SIZE, 0);
-    vector<int> UseCount(SIZE, 0);
+    vector<int> UseCount_temp(SIZE, 0);
+    UseCount = UseCount_temp;
     for (int order = 0; order < SliceReq.size(); order++) {
         Two_D result_temp;
         vector<int> temp = VTBProcessing(SliceReq[order][0].size(), order, UseCount, U);
@@ -896,11 +897,13 @@ void VTB::StartDeployment() {
             cout << endl;
         }
         cout << endl;
+        RESULT.push_back(result_temp);
         if (5 == order % 10) {
             for (auto a : UseCount) {
                 cout << a << "  ";
             }
             cout << endl;
+            break;
         }
     }
     cout << "Usecount = " << endl;
@@ -908,4 +911,53 @@ void VTB::StartDeployment() {
         cout << a << endl;
     }
     cout << endl;
+}
+
+void VTB::ComputeDelay() {
+    cout << "result = " << endl;
+    for (auto &a : RESULT) {
+        for (auto &b : a) {
+            for (auto c : b) {
+                cout << c << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+    int SIZE = AdjacencyMatrix.size();
+    //从路径矩阵中提取距离矩阵
+    vector<vector<int>> D;
+    for (int i = 0; i < SIZE; i++) {
+        vector<int> D_column(SIZE, 0);
+        D.push_back(D_column);
+    }
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            D[i][j] = ShortestPath[i][j].size() - 1;
+        }
+    }
+    for (int i = 0; i < SIZE; i++) {
+        D[i][i] = 0;
+    }
+    //求出每一套切片的时延
+    vector<double> delay;
+    for (int i = 0; i < RESULT.size(); i++) {
+        double sum = 0;
+        int chain_size = RESULT[i].size();
+        for (int j = 0; j < chain_size; j++) {
+            for (int k = 1; k < RESULT[i][j].size(); k++) {
+                int start = RESULT[i][j][k - 1];
+                int end = RESULT[i][j][k];
+                sum = sum + NODEDELAY*(D[start][end] - 1) + LINEDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
+            }
+            delay.push_back(sum);
+        }
+    }
+    //test
+    cout << "delay = " << endl;
+    for (auto a : delay) {
+        cout << a << endl;
+    }
+    cout << endl;
+    //test end
 }
