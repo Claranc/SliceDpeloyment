@@ -871,8 +871,10 @@ void VTB::StartDeployment() {
     UseCount = UseCount_temp;
     for (int order = 0; order < SliceReq.size(); order++) {
         Two_D result_temp;
+        //部署主链
         vector<int> temp = VTBProcessing(SliceReq[order][0].size(), order, UseCount, U);
          result_temp.push_back(temp);
+         //部署从链
         for (int i = 1; i < SliceReq[order].size(); i++) {
             int ingress = -1;
             int outgress = -1;

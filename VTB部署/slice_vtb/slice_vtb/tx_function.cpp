@@ -224,6 +224,7 @@ void TX::SetLinkWeight() {
     }
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
+            //设置两两节点间的权值
             LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + (0.338 * UseCount[j] * pow(flow, 12.15) + 0.51*flow);
             if (i == j) {
                 LineWeight[i][j] = double(INT_MAX);
@@ -238,6 +239,7 @@ void TX::StartDeployment() {
         Two_D result_temp;
         int chain_size = SliceReq[i].size();
         vector<int> chain_result;
+        //将usecount最小的一个节点作为主链的初始节点
         int first_min = INT_MAX;
         int first;
         for (int k = 0; k < SIZE; k++) {
@@ -248,6 +250,7 @@ void TX::StartDeployment() {
         }
         chain_result.push_back(first);
         Update(first);
+        //从初始节点开始以及找到权值跟它最低的节点作为下一节点
         int mc_size = SliceReq[i][0].size();
         int start_node = first;
         int end_node = start_node;
@@ -276,11 +279,14 @@ void TX::StartDeployment() {
         }
         result_temp.push_back(chain_result);
         chain_result.clear();
+        //开始部署从链
         for (int j = 1; j < chain_size; j++) {
             bool flag1, flag2 = false;
+            //起始VNF是否在主链中
             if (SliceReq[i][j][0] <= SliceReq[i][0].size()) {
                 flag1 = true;
             }
+            //最末的VNF是否在主链中
             if (SliceReq[i][j][SliceReq[i][j].size() - 1] <= SliceReq[i][0].size()) {
                 flag2 = true;
             }
@@ -288,11 +294,13 @@ void TX::StartDeployment() {
             int start = result_temp[0][SliceReq[i][j][0] - 1];
             int end;
             vc_result.push_back(start);
+            //最末的节点不在主链中
             if (!flag2) {
                 for (int k = 1; k < SliceReq[i][j].size()-1; k++) {
                     int temp = INT_MAX;
                     for (int l = 0; l < SIZE; l++) {
                         if (temp > LineWeight[start][l]) {
+                            //拒绝重复的节点出现
                             bool flag = false;
                             for (auto a : vc_result) {
                                 if (a == l) {
@@ -312,11 +320,13 @@ void TX::StartDeployment() {
                     start = end;
                 }
             } 
+            //最末的节点在主链中
             else {
                 for (int k = 1; k < SliceReq[i][j].size() - 2; k++) {
                     int temp = INT_MAX;
                     for (int l = 0; l < SIZE; l++) {
                         if (temp > LineWeight[start][l]) {
+                            //拒绝重复的节点出现
                             bool flag = false;
                             for (auto a : vc_result) {
                                 if (a == l) {
@@ -360,6 +370,7 @@ void TX::StartDeployment() {
     }
 }
 
+//每部署完一个节点就更新网络的相关的权重值
 void TX::Update(int j) {
     int SIZE = AdjacencyMatrix.size();
     UseCount[j]++;
@@ -371,6 +382,7 @@ void TX::Update(int j) {
     }
 }
 
+//计算时延的函数
 void TX::ComputeDelay() {
     int SIZE = AdjacencyMatrix.size();
     cout << "result = " << endl;
