@@ -23,10 +23,13 @@
     <ClCompile Include="main.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
-    <ClCompile Include="function.cpp">
+    <ClCompile Include="class.h">
       <Filter>资源文件</Filter>
     </ClCompile>
-    <ClCompile Include="class.h">
+    <ClCompile Include="vtb_function.cpp">
+      <Filter>资源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tx_function.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
   </ItemGroup>

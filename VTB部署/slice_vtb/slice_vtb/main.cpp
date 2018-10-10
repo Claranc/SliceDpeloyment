@@ -8,6 +8,7 @@
 
 int main() {
     shared_ptr<VTB> p (new VTB);    
+    //shared_ptr<TX> p (new TX);
     p->ReadFromFile(ADJACENCYMATRIX_FILE, NODECAPACITY_FILE, LINKBANDWIDTH_FILE, SLICETOPOLOGY_FILE, SLICEREQ_FILE);
     p->SetLinkWeight();
     p->StartDeployment();
