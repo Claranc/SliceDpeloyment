@@ -1,9 +1,5 @@
 #include "class.h"
 
-double flow = 0.1;
-double PRODELAY = 1;
-double LINKDELAY = 1;
-
 //字符串分割
 void TX::SplitString(const string& s, vector<string>& v, const string& c) {
     string::size_type pos1, pos2;
@@ -18,6 +14,7 @@ void TX::SplitString(const string& s, vector<string>& v, const string& c) {
         v.push_back(s.substr(pos1));
 }
 
+//读取文件
 void TX::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file, const char *linkbandwidth_file, \
     const char *slicevnf_file, const char *slicereqcapacity_file) {
     //读入邻接矩阵
@@ -107,6 +104,16 @@ void TX::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file,
         }
     }
     fin_slicevnf.close();
+    //test
+    /*for (auto &a : SliceReq) {
+        for (auto &b : a) {
+            for (auto c : b) {
+                cout << c << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }*/
     //读入切片容量请求
     ifstream fin_slicereq(slicereqcapacity_file, ios::in);
     if (!fin_slicereq) {
@@ -158,8 +165,11 @@ void TX::ReadFromFile(const char *adjacency_file, const char *nodecapacity_file,
     fin_slicereq.close();
 }
 
+//设置链路的权重
 void TX::SetLinkWeight() {
     int SIZE = AdjacencyMatrix.size();
+    vector<double> U_temp(SIZE, 0);
+    U = U_temp;
     vector<int> Usetemp(SIZE, 0);
     UseCount = Usetemp;
     for (int i = 0; i < SIZE; i++) {
@@ -225,7 +235,9 @@ void TX::SetLinkWeight() {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
             //设置两两节点间的权值
-            LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + (0.338 * UseCount[j] * pow(flow, 12.15) + 0.51*flow);
+            //LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + (0.338 * UseCount[j] * pow(flow, 12.15) + 0.51*flow);
+            LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + PROBABILITY*U[j];
+            //LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + PROBABILITY*UseCount[j];
             if (i == j) {
                 LineWeight[i][j] = double(INT_MAX);
             }
@@ -233,6 +245,7 @@ void TX::SetLinkWeight() {
     }
 }
 
+//部署函数
 void TX::StartDeployment() {
     int SIZE = AdjacencyMatrix.size();
     for (int i = 0; i < SliceReq.size(); i++) {
@@ -243,7 +256,7 @@ void TX::StartDeployment() {
         int first_min = INT_MAX;
         int first;
         for (int k = 0; k < SIZE; k++) {
-            if (UseCount[k] <= first_min) {
+            if (UseCount[k] < first_min) {
                 first_min = UseCount[k];
                 first = k;
             }
@@ -254,7 +267,8 @@ void TX::StartDeployment() {
         int mc_size = SliceReq[i][0].size();
         int start_node = first;
         int end_node = start_node;
-        for (int k = 0; k < mc_size ; k++) {
+        //开始部署主链
+        for (int k = 1; k < mc_size ; k++) {
             int temp = INT_MAX;
             for (int l = 0; l < SIZE; l++) {
                 if (temp > LineWeight[start_node][l]) {
@@ -296,7 +310,7 @@ void TX::StartDeployment() {
             vc_result.push_back(start);
             //最末的节点不在主链中
             if (!flag2) {
-                for (int k = 1; k < SliceReq[i][j].size()-1; k++) {
+                for (int k = 0; k < SliceReq[i][j].size()-1; k++) {
                     int temp = INT_MAX;
                     for (int l = 0; l < SIZE; l++) {
                         if (temp > LineWeight[start][l]) {
@@ -322,7 +336,7 @@ void TX::StartDeployment() {
             } 
             //最末的节点在主链中
             else {
-                for (int k = 1; k < SliceReq[i][j].size() - 2; k++) {
+                for (int k = 0; k < SliceReq[i][j].size() - 2; k++) {
                     int temp = INT_MAX;
                     for (int l = 0; l < SIZE; l++) {
                         if (temp > LineWeight[start][l]) {
@@ -349,8 +363,9 @@ void TX::StartDeployment() {
                 vc_result.push_back(end);
             }
             result_temp.push_back(vc_result);
-            RESULT.push_back(result_temp);
         }
+        RESULT.push_back(result_temp);
+        cout << "tag: " << i << endl;
         //test
        /* cout << "result = " << endl;
         cout << result_temp.size() << endl;
@@ -360,12 +375,12 @@ void TX::StartDeployment() {
             }
             cout << endl;
         }
-        cout << endl;*/
+        cout << endl;
         cout << "usecount = " << endl;
         for (auto a : UseCount) {
             cout << a << " ";
         }
-        cout << endl;
+        cout << endl;*/
         //test end
     }
 }
@@ -374,29 +389,43 @@ void TX::StartDeployment() {
 void TX::Update(int j) {
     int SIZE = AdjacencyMatrix.size();
     UseCount[j]++;
+    int sum = 0;
     for (int i = 0; i < SIZE; i++) {
-        LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + (0.338 * UseCount[j] * pow(flow, 12.15) + 0.51*flow);
-        if (i == j) {
-            LineWeight[i][j] == (double)INT_MAX;
+        sum += UseCount[i];
+    }
+    for (int i = 0; i < SIZE; i++) {
+        U[i] = (double)UseCount[i] / (double)sum;
+    }
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + PROBABILITY*U[j];
+            if (i == j) {
+                LineWeight[i][j] == (double)INT_MAX;
+            }
         }
+        //LineWeight[i][j] = PRODELAY*(D[i][j] - 1) + LINKDELAY * D[i][j] + (0.338 * UseCount[j] * pow(flow, 12.15) + 0.51*flow);
     }
 }
 
 //计算时延的函数
 void TX::ComputeDelay() {
-    int SIZE = AdjacencyMatrix.size();
-    cout << "result = " << endl;
+    /*cout << "result = " << endl;
     for (auto &a : RESULT) {
-        for (auto &b : a) {
-            for (auto c : b) {
-                cout << c << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
+    for (auto &b : a) {
+    for (auto c : b) {
+    cout << c << " ";
     }
+    cout << endl;
+    }
+    cout << endl;
+    }*/
+    cout << "usecount = " << endl;
+    for (auto a : UseCount) {
+        cout << a << " ";
+    }
+    cout << endl;
+    int SIZE = AdjacencyMatrix.size();
     //求出每一套切片的时延
-    vector<double> delay;
     for (int i = 0; i < RESULT.size(); i++) {
         double sum = 0;
         int chain_size = RESULT[i].size();
@@ -404,16 +433,33 @@ void TX::ComputeDelay() {
             for (int k = 1; k < RESULT[i][j].size(); k++) {
                 int start = RESULT[i][j][k - 1];
                 int end = RESULT[i][j][k];
-                sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + (0.338 * UseCount[end] * pow(flow, 12.15) + 0.51*flow);
+               //sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
+                sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
             }
-            delay.push_back(sum);
         }
+        delay.push_back(sum);
     }
     //test
-    cout << "delay = " << endl;
+    /*cout << "delay = " << endl;
     for (auto a : delay) {
         cout << a << endl;
     }
-    cout << endl;
+    cout << endl;*/
     //test end
+}
+
+void TX::SaveToFile(const char * filename) {
+    ofstream fout(filename, ios::app);
+    if (!fout.is_open()) {
+        cerr << "cannot open " << filename << endl;
+        exit(-1);
+    }
+    double sum = 0;
+    for (auto a : delay) {
+        sum += a;
+    }
+    sum /= SliceReq.size();
+    cout << "delay = " << sum << endl;
+    fout << traffic << "," << sum << endl;
+    fout.close();
 }

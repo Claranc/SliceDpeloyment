@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="class.h" />
+    <ClCompile Include="sa_function.cpp" />
     <ClCompile Include="tx_function.cpp" />
     <ClCompile Include="vtb_function.cpp" />
     <ClCompile Include="main.cpp" />

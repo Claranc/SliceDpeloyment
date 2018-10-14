@@ -1,6 +1,6 @@
 #include "slice_req.h"
 
-#define SLICE_REQ_NUM 100
+#define SLICE_REQ_NUM 50
 #define SLICE_NODE_CAPACITY "slicereq_node_capacity.txt"
 #define SLICE_TOPOLOGY "slice_topology.txt"
 

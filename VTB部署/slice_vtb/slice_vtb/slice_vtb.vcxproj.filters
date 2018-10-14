@@ -32,5 +32,8 @@
     <ClCompile Include="tx_function.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sa_function.cpp">
+      <Filter>资源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
