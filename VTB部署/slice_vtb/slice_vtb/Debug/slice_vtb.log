@@ -1,14 +1,3 @@
-﻿  vtb_function.cpp
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(126): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(139): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(434): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(448): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(508): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(525): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(540): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(546): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(620): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(624): warning C4018: “<”: 有符号/无符号不匹配
-c:\users\saintv\desktop\slicedpeloyment\vtb部署\slice_vtb\slice_vtb\vtb_function.cpp(533): warning C4715: “VTB::VTBProcessing”: 不是所有的控件路径都返回值
+﻿  main.cpp
   slice_vtb.vcxproj -> C:\Users\SaintV\Desktop\SliceDpeloyment\VTB部署\slice_vtb\Debug\slice_vtb.exe
   slice_vtb.vcxproj -> C:\Users\SaintV\Desktop\SliceDpeloyment\VTB部署\slice_vtb\Debug\slice_vtb.pdb (Full PDB)

@@ -7,11 +7,13 @@ class SliceReq {
 private:
 	Three_D SliceVNF;
 	Four_D VNFCapacity;
+    vector<int> max_delay;
 public:
 	Three_D CreateSF(int slicenum);
 	void GetSliceVNF();
 	void WriteToFile(const char *filename_vnf, const char *filename_capacity);
 	void GetSliceCapacity();
+    void CreateMaxDelay(int, const char*);
 };
 
 enum  vctype {

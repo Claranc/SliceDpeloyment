@@ -533,6 +533,9 @@ vector<int> VTB::VTBProcessing(int length, int order, vector<int> &UseCount, vec
 }
 
 void VTB::StartDeployment() {
+    //记录开始的时间
+    time_t start_time;
+    start_time = time(NULL);
     int SIZE = AdjacencyMatrix.size();
     vector<double> U(SIZE, 0);
     vector<int> UseCount_temp(SIZE, 0);
@@ -577,6 +580,22 @@ void VTB::StartDeployment() {
         //test end
         RESULT.push_back(result_temp);
         cout << "tag: " << order << endl;
+        /*if (order % 10 == 9) {
+            ComputeDelay();
+            ComputeRatio("max_delay.txt");
+        }*/
+        //计时
+        if (order % 10 == 9) {
+            time_t now_time;
+            now_time = time(NULL);
+            int delta = now_time - start_time;
+            ofstream fout("time_vtb.csv", ios::app);
+            if (!fout.is_open()) {
+                cerr << "cannot open time_vtb.csv" << endl;
+            }
+            fout << order + 1 << "," << delta << endl;
+            fout.close();
+        }
     }
     /*cout << "Usecount = " << endl;
     for (auto a : UseCount) {
@@ -586,12 +605,13 @@ void VTB::StartDeployment() {
 }
 
 void VTB::ComputeDelay() {
+    delay.clear();
    /* cout << "Usecount = " << endl;
     for (auto a : UseCount) {
         cout << a << endl;
     }
-    cout << endl;
-    cout << "result = " << endl;
+    cout << endl;*/
+    /*cout << "result = " << endl;
     for (auto &a : RESULT) {
         for (auto &b : a) {
             for (auto c : b) {
@@ -616,6 +636,7 @@ void VTB::ComputeDelay() {
     for (int i = 0; i < SIZE; i++) {
         D[i][i] = 0;
     }
+   // traffic = 1.0;
     //求出每一套切片的时延
     for (int i = 0; i < RESULT.size(); i++) {
         double sum = 0;
@@ -625,7 +646,7 @@ void VTB::ComputeDelay() {
                 int start = RESULT[i][j][k - 1];
                 int end = RESULT[i][j][k];
                 //sum = sum + NODEDELAY*(D[start][end] - 1) + LINEDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
-                sum = sum + NODEDELAY*(D[start][end] - 1) + LINEDELAY * D[start][end] + 0.1*(0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
+                sum = sum + NODEDELAY*(D[start][end] - 1) + LINEDELAY * D[start][end] + 0.04*(0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
             }
         }
         delay.push_back(sum);
@@ -654,4 +675,47 @@ void VTB::SaveToFile(const char * filename) {
     cout << "delay = " << sum << endl;
     fout << traffic << "," << sum << endl;
     fout.close();
+}
+
+void VTB::ComputeRatio(const char *filename) {
+    ifstream fin(filename, ios::in);
+    if (!fin.is_open()) {
+        cerr << "cannot open " << filename << endl;
+        exit(-1);
+    }
+    while (1) {
+        string linestr;
+        getline(fin, linestr);
+        if (linestr.size() == 0) {
+            break;
+        }
+        vector<string> temp;
+        SplitString(linestr, temp, " ");
+        for (int i = 0; i < temp.size(); i++) {
+            max_delay.push_back(stoi(temp[i]));
+        }
+    }
+    cout << "size = " << delay.size() << endl;
+    int SIZE = AdjacencyMatrix.size();
+    int count = 0;
+    int sum = 0;
+    for (auto a : delay) {
+        cout << a << endl;
+    }
+    cout << endl;
+    for (int i = 0; i < RESULT.size(); i++) {
+        sum++;
+        if (delay[i] <= max_delay[i]) {
+            count++;
+        }
+    }
+    max_delay.clear();
+    double ratio = (double)count / (double)sum;
+    cout << "ratio = " << ratio << endl;
+    ofstream fout("ratio_vtb_200.csv", ios::app);
+    if (!fout.is_open()) {
+        cerr << "cannot open  ratio_vtb.txt" << endl;
+        exit(-1);
+    }
+    fout << RESULT.size() << "," << ratio << endl;
 }

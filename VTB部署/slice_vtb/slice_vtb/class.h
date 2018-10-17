@@ -6,10 +6,10 @@
 //维特比算法部署
 class VTB {
 public:
-    double traffic;
-    double NODEDELAY = 0.3;
-    double LINEDELAY = 1;
-    double UPROBABILITY = 0;
+    double traffic = 1.0;
+    double NODEDELAY = 0.05;
+    double LINEDELAY = 0.3;
+    double UPROBABILITY = 200;
     Two_D AdjacencyMatrix;
     Two_D NodeCapacity;
     Two_D LinkBandwidth;
@@ -19,6 +19,7 @@ public:
     Three_D RESULT;
     vector<int> UseCount;
     vector<double> delay;
+    vector<int> max_delay;
 public:
     void SplitString(const string& s, vector<string>& v, const string& c);
     void ReadFromFile(const char*, const char*, const char*, const char*, const char*);
@@ -27,15 +28,16 @@ public:
     void StartDeployment();
     void ComputeDelay();
     void SaveToFile(const char*);
+    void ComputeRatio(const char*);
 };
 
 //贪心算法部署
 class TX {
 public:
-    double traffic;
-    double PRODELAY = 1;
-    double LINKDELAY = 1;
-    double PROBABILITY =0 ;
+    double traffic = 1.0;
+    double PRODELAY = 0.05;
+    double LINKDELAY = 0.3;
+    double PROBABILITY = 200 ;
     Two_D AdjacencyMatrix;
     Two_D NodeCapacity;
     Two_D LinkBandwidth;
@@ -48,8 +50,10 @@ public:
     vector<int> UseCount;
     vector<double> U;
     vector<double> delay;
+    vector<int> max_delay;
 public:
     void ReadFromFile(const char*, const char*, const char*, const char*, const char*);
+    void ComputeRatio(const char*);
     void SetLinkWeight();
     void StartDeployment();
     void SplitString(const string& s, vector<string>& v, const string& c);
@@ -61,10 +65,10 @@ public:
 //模拟退火算法部署
 class SA {
 public:
-    double traffic;
-    double PRODELAY = 1;
-    double LINKDELAY = 1;
-    double PROBABILITY = 500;
+    double traffic=1.0;
+    double PRODELAY = 0.5;
+    double LINKDELAY = 0.3;
+    double PROBABILITY = 200;
     Two_D AdjacencyMatrix;
     Two_D NodeCapacity;
     Two_D LinkBandwidth;
@@ -77,8 +81,11 @@ public:
     vector<int> UseCount;
     vector<double> U;
     vector<double> delay;
+    vector<int> max_delay;
+    vector<bool> is_ok;
 public:
     void ReadFromFile(const char*, const char*, const char*, const char*, const char*);
+    void ComputeRatio(const char*);
     void SetLinkWeight();
     void StartDeployment();
     void SplitString(const string& s, vector<string>& v, const string& c);

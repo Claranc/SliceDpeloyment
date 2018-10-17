@@ -103,6 +103,22 @@ void SliceReq::GetSliceCapacity() {
 	}
 }
 
+void SliceReq::CreateMaxDelay(int SLICE_REQ_NUM, const char *delay_file) {
+    for (int i = 0; i < SLICE_REQ_NUM; i++) {
+        int temp = 17 + rand() % 8;
+        max_delay.push_back(temp);
+    }
+    ofstream fout(delay_file, ios::out);
+    if (!fout.is_open()) {
+        cerr << "cannot open " << delay_file << endl;
+        exit(-1);
+    }
+    for (int i = 0; i < max_delay.size(); i++) {
+        fout << max_delay[i] << " ";
+    }
+    fout.close();
+}
+
 //输出到文件中
 void SliceReq::WriteToFile(const char *filename_vnf, const char *filename_capacity) {
 	//保存切片拓扑到文件中

@@ -15,7 +15,7 @@
 #include <vector>
 using namespace std;
 
-#define NETWORK_SIZE	100	//网络的大小
+#define NETWORK_SIZE	50	//网络的大小
 #define M		        3		//当添加一个新的节点，要连接到M个已经存在的点上
 #define M_0		        4	//初始时刻的网络节点数
 

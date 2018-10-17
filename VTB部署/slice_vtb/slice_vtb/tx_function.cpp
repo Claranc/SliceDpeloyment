@@ -247,6 +247,8 @@ void TX::SetLinkWeight() {
 
 //部署函数
 void TX::StartDeployment() {
+    time_t start_time;
+    start_time = time(NULL);
     int SIZE = AdjacencyMatrix.size();
     for (int i = 0; i < SliceReq.size(); i++) {
         Two_D result_temp;
@@ -366,6 +368,22 @@ void TX::StartDeployment() {
         }
         RESULT.push_back(result_temp);
         cout << "tag: " << i << endl;
+        //计算接受率
+        /*if (i % 10 == 9) {
+            ComputeDelay();
+            ComputeRatio("max_delay.txt");
+        }*/
+        if (i % 10 == 9) {
+            time_t now_time;
+            now_time = time(NULL);
+            int delta = now_time - start_time;
+            ofstream fout("time_tx.csv", ios::app);
+            if (!fout.is_open()) {
+                cerr << "cannot open time_tx.csv" << endl;
+            }
+            fout << i + 1 << "," << delta << endl;
+            fout.close();
+        }
         //test
        /* cout << "result = " << endl;
         cout << result_temp.size() << endl;
@@ -409,6 +427,7 @@ void TX::Update(int j) {
 
 //计算时延的函数
 void TX::ComputeDelay() {
+    delay.clear();
     /*cout << "result = " << endl;
     for (auto &a : RESULT) {
     for (auto &b : a) {
@@ -425,6 +444,7 @@ void TX::ComputeDelay() {
     }
     cout << endl;
     int SIZE = AdjacencyMatrix.size();
+    //traffic = 1.0;
     //求出每一套切片的时延
     for (int i = 0; i < RESULT.size(); i++) {
         double sum = 0;
@@ -434,7 +454,7 @@ void TX::ComputeDelay() {
                 int start = RESULT[i][j][k - 1];
                 int end = RESULT[i][j][k];
                //sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
-                sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + (0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
+                sum = sum + PRODELAY*(D[start][end] - 1) + LINKDELAY * D[start][end] + 0.04*(0.338 * UseCount[end] * pow(traffic, 12.15) + 0.51*traffic);
             }
         }
         delay.push_back(sum);
@@ -458,8 +478,52 @@ void TX::SaveToFile(const char * filename) {
     for (auto a : delay) {
         sum += a;
     }
+    delay.clear();
     sum /= SliceReq.size();
     cout << "delay = " << sum << endl;
     fout << traffic << "," << sum << endl;
     fout.close();
+}
+
+void TX::ComputeRatio(const char *filename) {
+    ifstream fin(filename, ios::in);
+    if (!fin.is_open()) {
+        cerr << "cannot open " << filename << endl;
+        exit(-1);
+    }
+    while (1) {
+        string linestr;
+        getline(fin, linestr);
+        if (linestr.size() == 0) {
+            break;
+        }
+        vector<string> temp;
+        SplitString(linestr, temp, " ");
+        for (int i = 0; i < temp.size(); i++) {
+            max_delay.push_back(stoi(temp[i]));
+        }
+    }
+    cout << "size = " << delay.size() << endl;
+    int SIZE = AdjacencyMatrix.size();
+    int count = 0;
+    int sum = 0;
+    for (auto a : delay) {
+        cout << a << endl;
+    }
+    cout << endl;
+    for (int i = 0; i < RESULT.size(); i++) {
+        sum++;
+        if (delay[i] <= max_delay[i]) {
+            count++;
+        }
+    }
+    max_delay.clear();
+    double ratio = (double)count / (double)sum;
+    cout << "ratio = " << ratio << endl;
+    ofstream fout("ratio_tx.csv", ios::app);
+    if (!fout.is_open()) {
+        cerr << "cannot open  ratio_tx.txt" << endl;
+        exit(-1);
+    }
+    fout << RESULT.size() << "," << ratio << endl;
 }
